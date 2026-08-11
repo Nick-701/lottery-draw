@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>幸运抽奖</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  background:linear-gradient(180deg,#1a1a2e 0%,#16213e 40%,#0f3460 100%);
+  min-height:100vh;color:#fff;
+}
+.container{max-width:460px;margin:0 auto;padding:20px;min-height:100vh}
+
+.header{text-align:center;padding:30px 0 20px}
+.header .icon{font-size:64px;animation:float 2s ease-in-out infinite}
+.header h1{font-size:28px;margin:10px 0 4px;
+  background:linear-gradient(135deg,#f5af19,#f12711);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.header .session-name{font-size:14px;color:#aaa}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+
+.card{
+  background:rgba(255,255,255,.06);border-radius:20px;padding:24px 20px;
+  margin-bottom:16px;border:1px solid rgba(255,255,255,.08);
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+}
+.card h3{font-size:17px;margin-bottom:14px;text-align:center}
+.card h4{font-size:15px;margin-bottom:10px;color:#f5af19}
+
+.btn{
+  display:block;width:100%;padding:15px;border:none;border-radius:14px;
+  font-size:18px;font-weight:bold;cursor:pointer;text-align:center;
+  transition:all .2s;margin-bottom:10px;
+}
+.btn:active{transform:scale(.97)}
+.btn-gold{
+  background:linear-gradient(135deg,#f5af19,#f12711);color:#fff;
+  box-shadow:0 4px 15px rgba(245,175,25,.3);
+}
+.btn-outline{background:transparent;border:2px solid rgba(255,255,255,.25);color:#fff}
+
+.input{
+  width:100%;padding:14px 16px;border:2px solid rgba(255,255,255,.2);
+  border-radius:14px;font-size:17px;background:rgba(255,255,255,.08);color:#fff;
+  transition:border-color .3s;outline:none;margin-bottom:12px;text-align:center;
+}
+.input:focus{border-color:#f5af19}
+.input::placeholder{color:rgba(255,255,255,.35)}
+
+/* 抽奖动画 */
+.lottery-area{text-align:center;padding:10px 0}
+.prize-spinner{font-size:80px;transition:transform .1s}
+.prize-spinner.spinning{animation:spin .08s linear infinite}
+@keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
+.prize-result-name{
+  font-size:26px;font-weight:bold;margin-top:12px;
+  background:linear-gradient(135deg,#f5af19,#f12711);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  opacity:0;transform:scale(.5);transition:all .4s cubic-bezier(.175,.885,.32,1.275);
+}
+.prize-result-name.show{opacity:1;transform:scale(1)}
+.hint-text{color:rgba(255,255,255,.5);font-size:14px;margin-top:8px}
+
+/* 结果 */
+.result-section{text-align:center;padding:10px 0}
+.result-emoji{font-size:70px;animation:bounceIn .6s}
+.result-title{font-size:24px;font-weight:bold;margin:10px 0}
+.result-prize{font-size:22px;color:#f5af19;font-weight:bold}
+.result-sub{color:rgba(255,255,255,.5);font-size:13px;margin-top:6px}
+@keyframes bounceIn{
+  0%{transform:scale(0);opacity:0}
+  50%{transform:scale(1.2)}
+  100%{transform:scale(1);opacity:1}
+}
+
+/* 奖项列表 */
+.prize-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:8px 0;border-bottom:1px solid rgba(255,255,255,.06);font-size:14px;
+}
+.prize-row:last-child{border-bottom:none}
+.prize-row .name{flex:1}
+.prize-row .info{color:rgba(255,255,255,.5);font-size:12px;text-align:right}
+
+.tag{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;background:rgba(245,175,25,.15);color:#f5af19}
+.tag-out{background:rgba(255,255,255,.1);color:#aaa}
+
+/* Toast */
+.toast{
+  position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:200;
+  background:rgba(0,0,0,.85);color:#fff;padding:12px 24px;border-radius:24px;
+  font-size:14px;animation:fadeInOut 2s forwards;pointer-events:none;display:none;
+}
+@keyframes fadeInOut{
+  0%{opacity:0;transform:translateX(-50%) translateY(-10px)}
+  15%{opacity:1;transform:translateX(-50%) translateY(0)}
+  70%{opacity:1;transform:translateX(-50%) translateY(0)}
+  100%{opacity:0;transform:translateX(-50%) translateY(-10px)}
+}
+
+/* 错误页 */
+.error-box{text-align:center;padding:60px 20px}
+.error-box .icon{font-size:70px;margin-bottom:16px}
+.error-box h2{font-size:20px;margin-bottom:8px}
+.error-box p{color:#aaa;font-size:14px}
+
+/* 彩带 */
+.confetti-container{
+  position:fixed;top:0;left:0;width:100%;height:100%;
+  pointer-events:none;z-index:150;overflow:hidden;
+}
+.confetti{
+  position:absolute;width:10px;height:10px;animation:confettiFall 3s forwards;
+}
+@keyframes confettiFall{
+  0%{transform:translateY(-10vh) rotate(0deg);opacity:1}
+  100%{transform:translateY(110vh) rotate(720deg);opacity:0}
+}
+
+@media(max-width:360px){
+  .container{padding:15px}
+  .header{padding:20px 0 15px}
+  .header .icon{font-size:50px}
+  .header h1{font-size:24px}
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div id="state-empty" class="error-box" style="display:none">
+    <div class="icon">🎰</div>
+    <h2 id="emptyTitle">暂无抽奖活动</h2>
+    <p id="emptyMsg">请联系管理员获取抽奖链接</p>
+  </div>
+
+  <div id="state-input" style="display:none">
+    <div class="header">
+      <div class="icon">🎪</div>
+      <h1>幸运抽奖</h1>
+      <div class="session-name" id="headerSessionName"></div>
+    </div>
+    <div class="card" style="text-align:center">
+      <div style="font-size:50px;margin-bottom:8px">🎁</div>
+      <h3>输入姓名，试试手气！</h3>
+      <p style="color:rgba(255,255,255,.5);font-size:13px;margin-bottom:16px">每人每轮仅限抽一次</p>
+      <input class="input" id="playerName" placeholder="请输入你的姓名" maxlength="30">
+      <button class="btn btn-gold" onclick="doDraw()">🎲 开始抽奖</button>
+    </div>
+    <div class="card" id="prizePreviewCard">
+      <h4>🎁 奖项一览</h4>
+      <div id="prizePreview"></div>
+    </div>
+  </div>
+
+  <div id="state-drawing" style="display:none">
+    <div class="header">
+      <div class="icon">🎰</div>
+      <h1>抽奖中...</h1>
+    </div>
+    <div class="card lottery-area">
+      <div class="prize-spinner spinning" id="spinnerIcon">🎁</div>
+      <div class="hint-text" id="drawingHint">正在为你抽取奖品…</div>
+      <div class="prize-result-name" id="drawingResultName"></div>
+    </div>
+  </div>
+
+  <div id="state-result" style="display:none">
+    <div class="header">
+      <div class="icon">🎊</div>
+      <h1>抽奖结果</h1>
+    </div>
+    <div class="card result-section">
+      <div class="result-emoji" id="resultEmoji"></div>
+      <div class="result-title" id="resultTitle"></div>
+      <div class="result-prize" id="resultPrize"></div>
+      <div class="result-sub" id="resultSub"></div>
+    </div>
+    <button class="btn btn-outline" onclick="resetToInput()">🔄 返回首页</button>
+  </div>
+
+</div>
+
+<div class="confetti-container" id="confettiContainer"></div>
+<div class="toast" id="toast"></div>
+
+<script>
+// ==================== 获取短码 ====================
+function getCode(){
+  const path=window.location.pathname;
+  const m=path.match(/\/draw\/([a-zA-Z0-9]+)/);
+  return m?m[1]:null;
+}
+
+const CODE=getCode();
+
+// ==================== Toast ====================
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.style.display='block';t.style.animation='none';
+  t.offsetHeight;t.style.animation='fadeInOut 2s forwards';
+  setTimeout(()=>t.style.display='none',2000);
+}
+
+// ==================== 彩带 ====================
+function fireConfetti(){
+  const container=document.getElementById('confettiContainer');
+  const colors=['#f5af19','#f12711','#ff6b6b','#ffd93d','#6bcb77','#4d96ff','#ff922b'];
+  const frag=document.createDocumentFragment();
+  for(let i=0;i<60;i++){
+    const el=document.createElement('div');
+    el.className='confetti';
+    el.style.left=Math.random()*100+'%';
+    el.style.top=-(Math.random()*20)+'px';
+    el.style.width=(6+Math.random()*10)+'px';
+    el.style.height=(6+Math.random()*10)+'px';
+    el.style.background=colors[Math.floor(Math.random()*colors.length)];
+    el.style.borderRadius=Math.random()>.5?'50%':'2px';
+    el.style.animationDuration=(2+Math.random()*2)+'s';
+    el.style.animationDelay=Math.random()*1+'s';
+    frag.appendChild(el);
+  }
+  container.appendChild(frag);
+  setTimeout(()=>{container.innerHTML='';},4000);
+}
+
+// ==================== 状态切换 ====================
+function showState(state){
+  ['empty','input','drawing','result'].forEach(s=>{
+    document.getElementById('state-'+s).style.display='none';
+  });
+  document.getElementById('state-'+state).style.display='block';
+}
+
+// ==================== 全局数据 ====================
+let sessionInfo=null; // {name, prizes, participants, records}
+
+// ==================== 加载抽奖数据 ====================
+async function loadSession(){
+  if(!CODE){
+    document.getElementById('emptyTitle').textContent='链接无效';
+    document.getElementById('emptyMsg').textContent='请通过管理员分享的链接打开';
+    showState('empty');return;
+  }
+  try{
+    const res=await fetch('/api/draw/'+CODE);
+    const data=await res.json();
+    if(!res.ok) throw new Error(data.message||'加载失败');
+    sessionInfo=data.session;
+    document.getElementById('headerSessionName').textContent=sessionInfo.name;
+    renderPrizePreview();
+    showState('input');
+    document.getElementById('playerName').value='';
+  }catch(e){
+    document.getElementById('emptyTitle').textContent='加载失败';
+    document.getElementById('emptyMsg').textContent=e.message||'请检查链接是否正确';
+    showState('empty');
+  }
+}
+
+function renderPrizePreview(){
+  const prizes=sessionInfo.prizes||[];
+  const container=document.getElementById('prizePreview');
+  if(prizes.length===0){
+    container.innerHTML='<p style="color:rgba(255,255,255,.4);text-align:center;font-size:13px">暂无奖项信息</p>';
+    document.getElementById('prizePreviewCard').style.display='none';
+    return;
+  }
+  document.getElementById('prizePreviewCard').style.display='block';
+  const totalWeight=prizes.reduce((s,p)=>s+p.weight,0);
+  container.innerHTML=prizes.map(p=>{
+    const pct=totalWeight>0?(p.weight/totalWeight*100).toFixed(1):0;
+    const soldOut=p.remaining<=0;
+    return `<div class="prize-row">
+      <span class="name">${p.name} ${soldOut?'<span class="tag tag-out">已抽完</span>':''}</span>
+      <span class="info">${pct}% | 剩${p.remaining}/${p.quantity}</span>
+    </div>`;
+  }).join('');
+}
+
+// ==================== 抽奖 ====================
+async function doDraw(){
+  const name=document.getElementById('playerName').value.trim();
+  if(!name){toast('请输入你的姓名');return;}
+
+  // 进入动画
+  showState('drawing');
+  document.getElementById('spinnerIcon').className='prize-spinner spinning';
+  document.getElementById('spinnerIcon').textContent='🎰';
+  document.getElementById('drawingHint').style.display='block';
+  document.getElementById('drawingHint').textContent='正在为你抽取奖品…';
+  document.getElementById('drawingResultName').className='prize-result-name';
+  document.getElementById('drawingResultName').textContent='';
+
+  try{
+    const res=await fetch('/api/draw/'+CODE,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({name})
+    });
+    const data=await res.json();
+
+    // 3秒动画后再展示结果
+    setTimeout(()=>{
+      document.getElementById('spinnerIcon').className='prize-spinner';
+      document.getElementById('spinnerIcon').textContent=data.alreadyDrawn?'🎁':'🎁';
+      document.getElementById('drawingHint').style.display='none';
+      document.getElementById('drawingResultName').textContent=data.alreadyDrawn?'已抽过':data.prize;
+      document.getElementById('drawingResultName').className='prize-result-name show';
+
+      if(!res.ok) throw new Error(data.message||'抽奖失败');
+
+      // 刷新本地数据
+      loadSessionFromServer();
+
+      setTimeout(()=>showResult(name,data.prize,data.alreadyDrawn),1500);
+    },3000);
+
+  }catch(e){
+    setTimeout(()=>{
+      document.getElementById('spinnerIcon').className='prize-spinner';
+      document.getElementById('drawingHint').style.display='none';
+      document.getElementById('drawingResultName').textContent='出错了';
+      document.getElementById('drawingResultName').className='prize-result-name show';
+      setTimeout(()=>resetToInput(),2000);
+    },1500);
+  }
+}
+
+async function loadSessionFromServer(){
+  try{
+    const res=await fetch('/api/draw/'+CODE);
+    const data=await res.json();
+    if(res.ok) sessionInfo=data.session;
+  }catch(e){}
+}
+
+function showResult(name,prize,alreadyDrawn){
+  const isThanks=prize&&prize.includes('谢谢');
+  document.getElementById('resultEmoji').textContent=alreadyDrawn?'👋':isThanks?'😊':'🎉';
+  document.getElementById('resultTitle').textContent=alreadyDrawn?'你已经参与过了':isThanks?'别灰心！':'恭喜你！';
+  document.getElementById('resultPrize').textContent=alreadyDrawn?`上次抽中：${prize}`:isThanks?'下次好运~':prize;
+  document.getElementById('resultSub').textContent=name+'，感谢参与！';
+  showState('result');
+  if(!alreadyDrawn&&!isThanks) fireConfetti();
+}
+
+function resetToInput(){
+  renderPrizePreview();
+  showState('input');
+  document.getElementById('playerName').value='';
+}
+
+// ==================== 启动 ====================
+loadSession();
+
+document.getElementById('playerName').addEventListener('keydown',function(e){
+  if(e.key==='Enter') doDraw();
+});
+</script>
+</body>
+</html>
