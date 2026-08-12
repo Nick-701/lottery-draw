@@ -1,2 +1,9 @@
 node_modules/
 .vercel
+cloudflared.exe
+ngrok.exe
+start.bat
+vercel.json
+Dockerfile
+.dockerignore
+render.yaml
