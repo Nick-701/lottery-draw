@@ -77,7 +77,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei
 <script>
 // ==== GitHub API ====
 const REPO='Nick-701/lottery-draw';
-const TOKEN='GITHUB_TOKEN_HERE'; // 替换为你的 token
+const SP=new URLSearchParams(location.search);
+const CODE=SP.get('code');
+const TOKEN=SP.get('tk')||'';
 const API='https://api.github.com/repos/'+REPO+'/contents/data.json';
 
 function toast(m){const t=document.getElementById('to');t.textContent=m;t.style.display='block';t.style.animation='none';t.offsetHeight;t.style.animation='fi 2s forwards';setTimeout(()=>t.style.display='none',2000);}
@@ -102,7 +104,6 @@ async function ghWrite(d){
 }
 
 // ==== 抽奖逻辑 ====
-const CODE=new URLSearchParams(location.search).get('code');
 let session=null,data=null;
 
 async function init(){
