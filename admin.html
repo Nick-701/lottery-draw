@@ -176,9 +176,9 @@ async function saveData(d){
 let data=null,cur=0;
 
 async function init(){
+  if(!TOKEN)return; // 等用户登录时输入 token
   try{data=await loadData();if(!data.sessions.length)data.sessions.push({id:'s1',name:'第一轮抽奖',prizes:[],participants:[],records:[]});renderAll();}
-  catch(e){toast('加载数据失败：'+e.message);}
-}
+  catch(e){/* 静默失败，等用户登录 */}
 
 async function login(){
   const pwd=document.getElementById('adminPwd').value.trim();
