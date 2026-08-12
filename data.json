@@ -1,0 +1,134 @@
+{
+  "adminPassword": "admin123",
+  "sessions": [
+    {
+      "id": "s1786515612845",
+      "name": "第一轮抽奖",
+      "prizes": [
+        {
+          "id": 1786518758276,
+          "name": "礼包一：免费学车",
+          "weight": 0.01,
+          "quantity": 1,
+          "remaining": 1
+        },
+        {
+          "id": 1786518768049,
+          "name": "礼包一：免费学车",
+          "weight": 0.01,
+          "quantity": 1,
+          "remaining": 1
+        },
+        {
+          "id": 1786518776943,
+          "name": "礼包一：免费学车",
+          "weight": 0.01,
+          "quantity": 1,
+          "remaining": 1
+        },
+        {
+          "id": 1786518777378,
+          "name": "礼包一：免费学车",
+          "weight": 0.01,
+          "quantity": 1,
+          "remaining": 1
+        },
+        {
+          "id": 1786518777797,
+          "name": "礼包一：免费学车",
+          "weight": 0.01,
+          "quantity": 1,
+          "remaining": 1
+        },
+        {
+          "id": 1786518777948,
+          "name": "礼包一：免费学车",
+          "weight": 0.01,
+          "quantity": 1,
+          "remaining": 1
+        },
+        {
+          "id": 1786518778121,
+          "name": "礼包一：免费学车",
+          "weight": 0.01,
+          "quantity": 1,
+          "remaining": 1
+        },
+        {
+          "id": 1786518778280,
+          "name": "礼包一：免费学车",
+          "weight": 0.01,
+          "quantity": 1,
+          "remaining": 1
+        },
+        {
+          "id": 1786518778445,
+          "name": "礼包一：免费学车",
+          "weight": 0.01,
+          "quantity": 1,
+          "remaining": 1
+        },
+        {
+          "id": 1786518778618,
+          "name": "礼包一：免费学车",
+          "weight": 0.01,
+          "quantity": 1,
+          "remaining": 1
+        },
+        {
+          "id": 1786518778784,
+          "name": "礼包一：免费学车",
+          "weight": 0.01,
+          "quantity": 1,
+          "remaining": 1
+        }
+      ],
+      "participants": [
+        {
+          "name": "王自元",
+          "drawn": false
+        },
+        {
+          "name": "张淞",
+          "drawn": false
+        },
+        {
+          "name": "李宇豪",
+          "drawn": false
+        },
+        {
+          "name": "阿伙尔日",
+          "drawn": false
+        },
+        {
+          "name": "阿咪天尔",
+          "drawn": false
+        },
+        {
+          "name": "余映钦",
+          "drawn": false
+        },
+        {
+          "name": "张胜",
+          "drawn": false
+        }
+      ],
+      "records": []
+    },
+    {
+      "id": "s1786515629431",
+      "name": "抽奖测试",
+      "prizes": [],
+      "participants": [],
+      "records": []
+    },
+    {
+      "id": "s1786518519162",
+      "name": "�����ִ�",
+      "prizes": [],
+      "participants": [],
+      "records": []
+    }
+  ],
+  "published": {}
+}

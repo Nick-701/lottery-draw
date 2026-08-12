@@ -6,12 +6,20 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000;
 const DATA_FILE = path.join(__dirname, 'data.json');
+const IS_VERCEL = !!process.env.VERCEL;
 
 app.use(express.json({ limit: '10mb' }));
 app.use(express.static(__dirname));
 
 // ==================== 数据读写 ====================
+// Vercel 用内存存储（serverless 无文件系统），本地用 JSON 文件
+let memStore = null;
+
 function readData() {
+  if (IS_VERCEL) {
+    if (!memStore) memStore = getDefaultData();
+    return JSON.parse(JSON.stringify(memStore));
+  }
   try {
     if (fs.existsSync(DATA_FILE)) {
       return JSON.parse(fs.readFileSync(DATA_FILE, 'utf-8'));
@@ -21,6 +29,10 @@ function readData() {
 }
 
 function writeData(data) {
+  if (IS_VERCEL) {
+    memStore = JSON.parse(JSON.stringify(data));
+    return;
+  }
   fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2), 'utf-8');
 }
 
@@ -272,9 +284,13 @@ app.get('/health', (req, res) => {
 });
 
 // ==================== 启动 ====================
-app.listen(PORT, () => {
-  console.log(`🎰 抽奖服务已启动`);
-  console.log(`   管理后台: http://localhost:${PORT}/admin`);
-  console.log(`   数据文件: ${DATA_FILE}`);
-  console.log(`   默认密码: admin123`);
-});
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`🎰 抽奖服务已启动`);
+    console.log(`   管理后台: http://localhost:${PORT}/admin`);
+    console.log(`   数据文件: ${DATA_FILE}`);
+    console.log(`   默认密码: admin123`);
+  });
+}
+
+module.exports = app;
